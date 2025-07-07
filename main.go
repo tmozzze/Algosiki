@@ -1,7 +1,7 @@
 package main
 
 import (
-	"alg/sliding_window/sliding_window"
+	"github.com/tmozzze/Algosiki/tree/main/alg/sliding_window"
 )
 
 func main() {

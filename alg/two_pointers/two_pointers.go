@@ -12,7 +12,7 @@ import (
 	"math"
 )
 
-func two_pointers(a_array []int, b_array []int) {
+func TwoPointers(a_array []int, b_array []int) {
 	var modDiff int
 
 	modDiffPrev := 9999
