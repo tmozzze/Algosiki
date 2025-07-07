@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/tmozzze/Algosiki/tree/main/alg/sliding_window"
+	"alg/alg/two_pointers"
 )
 
 func main() {
-	var array = []int{1, 2, 3, 4, 5, 6, 7}
+	var a_array = []int{1, 2, 10}
+	var b_array = []int{8, 20, 30}
 
-	sliding_window.SlidingWindow(array, 3)
-	sliding_window.SliceSlidingWindow(array, 5)
+	//sliding_window.SlidingWindow(a_array, 3)
+	//sliding_window.SliceSlidingWindow(b_array, 2)
+	two_pointers.TwoPointers(a_array, b_array)
 
 }

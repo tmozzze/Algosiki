@@ -15,20 +15,21 @@ import (
 func TwoPointers(a_array []int, b_array []int) {
 	var modDiff int
 
-	modDiffPrev := 9999
 	i := 0
 	j := len(b_array) - 1
 
-	for i < j {
-		modDiff = int(math.Abs(float64(a_array[i]) - float64(b_array[j])))
-		if (modDiffPrev > modDiff) && (j != 0) {
-			modDiffPrev = modDiff
+	for i < 1000 {
+		if j >= 1 {
 			j--
-		} else if (modDiffPrev > modDiff) && (i != len(a_array)-1) {
-			modDiffPrev = modDiff
+			modDiff = int(math.Abs(float64(a_array[i]) - float64(b_array[j])))
+			fmt.Println("j pointer shift   modDiff:", modDiff, "elements: ", a_array[i], b_array[j])
+		} else if i < len(a_array)-1 {
 			i++
+			modDiff = int(math.Abs(float64(a_array[i]) - float64(b_array[j])))
+			fmt.Println("i pointer shift   modDiff:", modDiff, "elements: ", a_array[i], b_array[j])
 		} else {
-			fmt.Println(modDiffPrev)
+			fmt.Println(modDiff)
+			break
 		}
 
 	}
