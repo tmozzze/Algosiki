@@ -1,7 +1,7 @@
 package main
 
 import (
-	"sliding_window/sliding_window"
+	"alg/sliding_window/sliding_window"
 )
 
 func main() {

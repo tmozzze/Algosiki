@@ -1,3 +1,3 @@
-module sliding_window
+module alg
 
 go 1.22.0
