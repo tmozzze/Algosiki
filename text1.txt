@@ -1,0 +1,157 @@
+Skip to main content
+
+key
+Get API key
+Studio
+Dashboard
+Documentation
+open_in_new
+Алексей Истомин
+Ошибка В Коде Async Операций
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+В предоставленном вами коде содержится несколько ошибок, которые приводят к некорректной работе программы и потенциальной взаимоблокировке (deadlock).
+Основные ошибки в коде:
+Неправильное условие в цикле for:
+Цикл for i := 1; i == len(filenames); i++ в функции main скорее всего не выполнится ни разу. Он запустится только в том маловероятном случае, если len(filenames) будет равно 1. Правильным условием для итерации по всем файлам было бы for i := 0; i < len(filenames); i++.
+Взаимоблокировка (Deadlock) из-за каналов:
+Горутина ScanFiles отправляет данные в канал out.
+Горутины CheckPhrase пытаются читать данные из канала in.
+Эти два канала (out и in) никак не связаны между собой. Данные, отправленные в out, никогда не попадут в in. В результате горутины CheckPhrase будут вечно заблокированы в ожидании данных из пустого канала in.[1][2]
+Неправильное использование sync.WaitGroup:
+Вызов wg.Wait() внутри функции ScanFiles является логической ошибкой. Это означает, что горутина, сканирующая файлы, будет ждать завершения всех горутин, проверяющих фразы. Однако эти проверяющие горутины ждут данные, которые должна отправить сканирующая горутина, что создает цикл ожидания.[3][4]
+В функции main отсутствует вызов wg.Wait(). Без этого вызова основная горутина (main) завершит свою работу сразу после запуска остальных горутин, не дожидаясь их выполнения.[5][6]
+Отсутствие связи между生产者 (Producer) и потребителем (Consumer):
+В вашей схеме ScanFiles выступает в роли "производителя" данных, а CheckPhrase — в роли "потребителя". Отсутствует механизм, который бы передавал данные от производителя к потребителям.
+Исправленный и рабочий вариант кода:
+Ниже приведен исправленный вариант кода, который демонстрирует правильную организацию взаимодействия горутин с использованием каналов и WaitGroup.
+Generated go
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+	"sync"
+)
+
+var PHRASE = "sas"
+
+func main() {
+	var filenames = []string{"test.txt", "text1.txt", "text2.txt"}
+	// Предположим, что эти файлы существуют и содержат какой-то текст.
+	// Например, создадим их для демонстрации:
+	createTestFiles()
+
+	// Канал для передачи содержимого файлов от ScanFiles к CheckPhrase
+	contentChan := make(chan string)
+
+	wg := &sync.WaitGroup{}
+
+	fmt.Println("Start scanning")
+
+	// Запускаем горутины-обработчики (consumer'ы)
+	for i := 0; i < len(filenames); i++ {
+		wg.Add(1)
+		go CheckPhrase(PHRASE, contentChan, wg)
+	}
+
+	// Запускаем горутину, которая читает файлы и отправляет их содержимое в канал
+	go ScanFiles(filenames, contentChan)
+
+	// Ждем завершения всех горутин-обработчиков
+	wg.Wait()
+
+	fmt.Println("All files checked.")
+}
+
+// ScanFiles читает файлы и отправляет их содержимое в канал.
+// После отправки всех данных канал необходимо закрыть.
+func ScanFiles(filenames []string, out chan<- string) {
+	for _, filename := range filenames {
+		content := ScanFile(filename)
+		out <- content
+	}
+	// Закрываем канал, чтобы сообщить горутинам CheckPhrase, что данных больше не будет.
+	close(out)
+}
+
+// CheckPhrase читает содержимое из канала и ищет в нем фразу.
+func CheckPhrase(phrase string, in <-chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	// Читаем данные из канала, пока он не будет закрыт
+	for content := range in {
+		result := strings.Count(content, phrase)
+		fmt.Printf("Found phrase '%s' %d times in a file.\n", phrase, result)
+	}
+}
+
+func FormatText(text string) string {
+	text = strings.ReplaceAll(text, "\n", " ")
+	text = strings.ReplaceAll(text, "\r", "")
+	text = strings.ToLower(text)
+	return text
+}
+
+func ScanFile(filename string) string {
+	fileContent, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("Read file error: %v\n", err)
+		return ""
+	}
+
+	var strFileContent = string(fileContent)
+	strFileContent = FormatText(strFileContent)
+
+	return strFileContent
+}
+
+// Вспомогательная функция для создания тестовых файлов.
+func createTestFiles() {
+	os.WriteFile("test.txt", []byte("this is a test with sas."), 0644)
+	os.WriteFile("text1.txt", []byte("sas is a keyword, sas."), 0644)
+	os.WriteFile("text2.txt", []byte("another file without the phrase."), 0644)
+}
+Use code with caution.
+Go
+Ключевые изменения и их объяснение:
+Единый канал: Вместо двух несвязанных каналов in и out используется один contentChan для передачи данных от ScanFiles к CheckPhrase.
+Правильный запуск горутин: Горутины CheckPhrase запускаются в цикле, и для каждой из них вызывается wg.Add(1).[7]
+Закрытие канала: После того как ScanFiles прочитала все файлы и отправила их содержимое в канал, она закрывает канал с помощью close(contentChan). Это является сигналом для горутин CheckPhrase, которые читают данные из канала в цикле for range, что данных больше не будет, и они могут завершить свою работу.[5]
+Правильное ожидание: Вызов wg.Wait() перенесен в конец функции main. Это гарантирует, что основная программа дождется выполнения всех горутин CheckPhrase перед своим завершением.[6][8]
+Чтение из канала в цикле: CheckPhrase теперь использует конструкцию for content := range in для чтения всех данных из канала до его закрытия. Это стандартный паттерн для обработки данных от нескольких производителей.
+Sources
+help
+scaler.com
+github.com
+lazharichir.com
+medium.com
+medium.com
+medium.com
+medium.com
+dev.to
+Google Search Suggestions
+Display of Search Suggestions is required when using Grounding with Google Search. Learn more
+Google logo
+41.0s
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+Start typing a prompt
+
+Run
+Ctrl
+Gemini 2.5 Pro
+1
+
+
+65536
+0,95
