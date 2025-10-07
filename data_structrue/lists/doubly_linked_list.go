@@ -112,5 +112,94 @@ func (dll *DoublyLinkedList) PrintBackward() {
 		current = current.prev
 	}
 	fmt.Printf("%v\n", current.data)
+}
 
+func (dll *DoublyLinkedList) Find(data interface{}) (*DNode, bool) {
+	if dll.head == nil {
+		return nil, false
+	}
+
+	current := dll.head
+
+	for current != nil {
+		if current.data == data {
+			return current, true
+		}
+		current = current.next
+	}
+
+	return nil, false
+}
+
+func (dll *DoublyLinkedList) DeleteAt(index int) bool {
+	if index < 0 || index >= dll.len {
+		return false
+	}
+
+	if index == 0 {
+		dll.head = dll.head.next
+		if dll.head == nil {
+			dll.tail = nil
+		}
+		dll.len--
+		return true
+	}
+
+	if index == dll.len-1 {
+		dll.tail = dll.tail.prev
+		dll.tail.next = nil
+		dll.len--
+		return true
+	}
+
+	mid := (dll.len - 1) / 2
+	var current *DNode
+
+	if index < mid {
+		// проходим в слева-направо
+		current = dll.head
+		for i := 0; i < index; i++ {
+			current = current.next
+		}
+	} else {
+		// проходим справа налево
+		current = dll.tail
+		for i := dll.len - 1; i > index; i-- {
+			current = current.prev
+		}
+	}
+	current.prev.next = current.next
+	current.next.prev = current.prev
+	dll.len--
+	return true
+}
+
+func (dll *DoublyLinkedList) GetAt(index int) *DNode {
+	if index < 0 || index >= dll.len {
+		return nil
+	}
+
+	if index == 0 {
+		return dll.head
+	}
+
+	if index == dll.len-1 {
+		return dll.tail
+	}
+
+	mid := (dll.len - 1) / 2
+	var current *DNode
+
+	if index < mid {
+		current = dll.head
+		for i := 0; i < index; i++ {
+			current = current.next
+		}
+	} else {
+		current = dll.tail
+		for i := dll.len - 1; i > index; i-- {
+			current = current.prev
+		}
+	}
+	return current
 }
