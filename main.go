@@ -12,12 +12,10 @@ func main() {
 	dlist.Append(4)
 	dlist.Append(3)
 	dlist.Append(5)
+
 	dlist.PrintForward()
-	dlist.PrintBackward()
-	fmt.Println(dlist.Delete(3))
+	fmt.Println(dlist.GetAt(3))
 	dlist.PrintForward()
-	dlist.PrintBackward()
-	fmt.Println(dlist.Delete(3))
 
 	// list2 := lists.NewLinkedList()
 	// list2.Print()
