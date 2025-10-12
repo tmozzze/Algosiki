@@ -17,6 +17,9 @@ func main() {
 	fmt.Println(dlist.GetAt(3))
 	dlist.PrintForward()
 
+	dlist.InsertAt(2, 10)
+	dlist.PrintForward()
+
 	// list2 := lists.NewLinkedList()
 	// list2.Print()
 

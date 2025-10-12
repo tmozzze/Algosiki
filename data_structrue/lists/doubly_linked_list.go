@@ -203,3 +203,41 @@ func (dll *DoublyLinkedList) GetAt(index int) *DNode {
 	}
 	return current
 }
+
+func (dll *DoublyLinkedList) InsertAt(index int, data interface{}) bool {
+	if index < 0 || index >= dll.len {
+		return false
+	}
+
+	if index == 0 {
+		dll.Prepend(data)
+		return true
+	}
+
+	if index == dll.len {
+		dll.Append(data)
+		return true
+	}
+
+	newNode := &DNode{data: data, prev: nil, next: nil}
+	current := dll.GetAt(index)
+
+	newNode.prev = current.prev
+	newNode.next = current
+	current.prev.next = newNode
+	current.prev = newNode
+
+	dll.len++
+
+	return true
+}
+
+func (dll *DoublyLinkedList) Len() int {
+	return dll.len
+}
+
+func (dll *DoublyLinkedList) Clear() {
+	dll.head = nil
+	dll.tail = nil
+	dll.len = 0
+}
