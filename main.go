@@ -1,14 +1,14 @@
 package main
 
 import (
-	"alg/alg/counting_sort"
+	"alg/LeetCode/hashing_problems"
 	"fmt"
 )
 
 func main() {
-	nums := []int{5, 1, 4, 3, 7, 19, 12, 85, 9999999, 9}
+	nums := "2"
 
-	sortedNums := counting_sort.Sort(nums)
+	sortedNums := hashing_problems.DigitCount(nums)
 	fmt.Println(sortedNums)
 
 }
