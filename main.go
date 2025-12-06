@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	nums := "2"
+	nums := "1001"
 
-	sortedNums := hashing_problems.DigitCount(nums)
+	sortedNums := hashing_problems.CheckOnesSegment(nums)
 	fmt.Println(sortedNums)
 
 }
