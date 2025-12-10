@@ -29,8 +29,8 @@ func (q *MyQueue) Peek() int {
 	return elem
 }
 
-func (this *MyQueue) Empty() bool {
-
+func (q *MyQueue) Empty() bool {
+	return !(len(q.Queue) >= 1)
 }
 
 /**

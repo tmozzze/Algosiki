@@ -1,14 +1,24 @@
 package main
 
 import (
-	"alg/LeetCode/hashing_problems"
+	"alg/concurrency"
 	"fmt"
 )
 
 func main() {
-	nums := "1001"
+	ch1 := make(chan int, 10)
+	ch2 := make(chan int, 20)
 
-	sortedNums := hashing_problems.CheckOnesSegment(nums)
-	fmt.Println(sortedNums)
+	ch1 <- 1
+	ch2 <- 2
+	ch2 <- 3
+	close(ch1)
+	close(ch2)
+
+	ch3 := concurrency.MergeChans[int](ch1, ch2)
+
+	for elem := range ch3 {
+		fmt.Println(elem)
+	}
 
 }

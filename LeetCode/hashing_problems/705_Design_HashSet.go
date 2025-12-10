@@ -6,7 +6,7 @@ type MyHashSet struct {
 	Set []int
 }
 
-func Constructor() MyHashSet {
+func ConstructorSet() MyHashSet {
 	return MyHashSet{Set: make([]int, 0)}
 }
 
